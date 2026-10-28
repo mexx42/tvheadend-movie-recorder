@@ -1,0 +1,19 @@
+services:
+  tvheadend-movie-recorder:
+    build: .
+    container_name: tvheadend-movie-recorder
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    # The app runs as uid/gid 1000 inside the container and must be able to write to ./data.
+    # Create ./data yourself before the first start, otherwise Docker creates it owned by root.
+    # If your user is not 1000:1000 (check with `id -u` and `id -g`), uncomment and adjust:
+    #user: "1000:1000"
+    volumes:
+      - ./data:/data        # settings, watchlist, recorded movies, cache (must be writable by the container user)
+    environment:
+      TZ: UTC               # set your timezone, e.g. Europe/Vienna
+      # SESSION_COOKIE_SECURE: "true"   # only when served over https (e.g. behind Traefik)
+    # Lets you reach a Tvheadend running on the Docker host as host "host.docker.internal".
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

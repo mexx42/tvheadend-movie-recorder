@@ -1,0 +1,24 @@
+# Example: serve the web interface over https behind an existing Traefik instance.
+# Adjust the network name, host name and certificate resolver to your Traefik setup.
+services:
+  tvheadend-movie-recorder:
+    build: ..
+    restart: unless-stopped
+    volumes:
+      - ../data:/data
+    environment:
+      TZ: UTC  # set your timezone
+      SESSION_COOKIE_SECURE: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [traefik]
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tvhe.rule=Host(`movies.example.org`)
+      - traefik.http.routers.tvhe.entrypoints=websecure
+      - traefik.http.routers.tvhe.tls.certresolver=letsencrypt
+      - traefik.http.services.tvhe.loadbalancer.server.port=5000
+
+networks:
+  traefik:
+    external: true

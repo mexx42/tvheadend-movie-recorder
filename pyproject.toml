@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tvheadend-movie-recorder"
+version = "0.1.0"
+description = "Automatically record TV movies featuring your favourite actors and directors via Tvheadend"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{name = "Marcus Priesch", email = "4030713+mexx42@users.noreply.github.com"}]
+dependencies = ["requests>=2.32,<3", "pyyaml>=6.0,<7", "flask>=3.1,<4", "waitress>=3.0,<4"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/mexx42/tvheadend-movie-recorder"
+Issues = "https://github.com/mexx42/tvheadend-movie-recorder/issues"
+
+[project.scripts]
+tvheadend-movie-recorder = "tvheadend_movie_recorder.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tvheadend_movie_recorder*"]
+
+[tool.setuptools.package-data]
+tvheadend_movie_recorder = ["templates/*.html", "static/*"]

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% macro editable_list(title, kind, items, placeholder, help) %}
+<div class="section">
+    <h2>{{ title }}</h2>
+    <p class="hint">{{ help }}</p>
+    <form class="inline" method="post" action="{{ url_for('list_add', kind=kind) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="value" placeholder="{{ placeholder }}" required>
+        <button type="submit">Add</button>
+    </form>
+    {% for item in items %}
+    <div class="list-item">
+        <span>{{ item }}</span>
+        <form method="post" action="{{ url_for('list_remove', kind=kind) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="value" value="{{ item }}">
+            <button class="danger" type="submit">Remove</button>
+        </form>
+    </div>
+    {% else %}
+    <p class="muted">Nothing here yet.</p>
+    {% endfor %}
+</div>
+{% endmacro %}
+{% block content %}
+{% if not configured %}
+<div class="flash error">Tvheadend is not configured yet. Open <a href="{{ url_for('settings') }}">Settings</a> to connect it.</div>
+{% endif %}
+
+<div class="section">
+    <h2>Status</h2>
+    {% if summary %}
+        <p>Last run: {{ summary.started.replace('T', ' ') }}
+        {% if summary.error %}
+            - <strong style="color: var(--err)">{{ summary.error }}</strong>
+        {% else %}
+            - {{ summary.events }} movies in the guide, {{ summary.scheduled|length }} newly scheduled
+            {% if summary.scheduled %}({{ summary.scheduled|map(attribute='title')|join(', ') }}){% endif %}
+        {% endif %}
+        </p>
+    {% else %}
+        <p class="muted">No run yet.</p>
+    {% endif %}
+    {% if auto_run %}<p class="muted">Runs automatically every day at {{ run_at }}.</p>
+    {% else %}<p class="muted">Automatic runs are off; runs happen only with "Run now" or the <code>run</code> command.</p>{% endif %}
+    <form method="post" action="{{ url_for('run_now') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Run now</button>
+    </form>
+</div>
+
+{{ editable_list('Watchlist', 'names', names, 'Actor, director or producer',
+                 'Movies featuring any of these people are recorded. Matching ignores upper/lower case.') }}
+{{ editable_list('Movie blacklist', 'blacklist', blacklist, 'Movie title',
+                 'Titles containing any of these words are never recorded.') }}
+
+<div class="section" id="recorded">
+    <h2>Recorded movies</h2>
+    {% if month %}
+    <nav class="months" aria-label="Month">
+        {% if older_month %}<a href="{{ url_for('index', month=older_month, _anchor='recorded') }}">&laquo; {{ month_label(older_month) }}</a>
+        {% else %}<span class="muted">&laquo;</span>{% endif %}
+        <form method="get" action="{{ url_for('index', _anchor='recorded') }}">
+            <select name="month" onchange="this.form.submit()" aria-label="Choose month">
+                {% for key, count in months.items() %}
+                <option value="{{ key }}" {{ 'selected' if key == month }}>{{ month_label(key) }} ({{ count }})</option>
+                {% endfor %}
+            </select>
+            <noscript><button type="submit">Show</button></noscript>
+        </form>
+        {% if newer_month %}<a href="{{ url_for('index', month=newer_month, _anchor='recorded') }}">{{ month_label(newer_month) }} &raquo;</a>
+        {% else %}<span class="muted">&raquo;</span>{% endif %}
+    </nav>
+    {% endif %}
+    <div class="grid-row grid-header">
+        <div>Title</div><div>Channel</div><div>Matched</div><div>Scheduled</div><div>IMDb</div><div>Actions</div>
+    </div>
+    {% for movie in recorded_movies %}
+    <div class="grid-row">
+        <div class="grid-cell" data-label="Title">{{ movie.title }}</div>
+        <div class="grid-cell" data-label="Channel">{{ movie.channel_name }}</div>
+        <div class="grid-cell" data-label="Matched">{{ movie.matched_name }}</div>
+        <div class="grid-cell" data-label="Scheduled">{{ format_date(movie.date_scheduled) }}</div>
+        <div class="grid-cell" data-label="IMDb">
+            {% if movie.imdb_id %}
+            <a href="https://www.imdb.com/title/tt{{ movie.imdb_id }}" target="_blank" rel="noopener">IMDb</a>
+            {% endif %}
+        </div>
+        <div class="grid-cell" data-label="Actions">
+            <div class="action-links">
+                <form method="post" action="{{ url_for('blacklist_title') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="month" value="{{ month }}">
+                    <input type="hidden" name="value" value="{{ movie.title }}">
+                    <button class="linklike" type="submit">Blacklist movie</button>
+                </form>
+                <form method="post" action="{{ url_for('exclude_channel') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="month" value="{{ month }}">
+                    <input type="hidden" name="value" value="{{ movie.channel_name }}">
+                    <button class="linklike" type="submit">Remove from channel list</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="muted">Nothing recorded yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

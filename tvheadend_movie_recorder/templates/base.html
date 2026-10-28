@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Tvheadend Movie Recorder{% endblock %}</title>
+    <style>
+        :root { --accent: #2e7d32; --err: #c62828; }
+        body { font-family: system-ui, Arial, sans-serif; margin: 0; background: #f0f0f0; color: #222; }
+        header { background: #263238; color: white; padding: 10px 20px; display: flex;
+                 align-items: center; gap: 20px; flex-wrap: wrap; }
+        header h1 { font-size: 1.1rem; margin: 0; flex: 1; }
+        header a, header button.link { color: #cfd8dc; text-decoration: none; background: none;
+                 border: none; font: inherit; cursor: pointer; padding: 0; }
+        header form { display: inline; margin: 0; }
+        main { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        footer { max-width: 1000px; margin: 30px auto; padding: 0 20px; color: #666; font-size: .8rem; }
+        .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 5px;
+                   box-shadow: 0 2px 5px rgba(0,0,0,.1); }
+        h2 { margin-top: 0; }
+        .list-item { display: flex; justify-content: space-between; align-items: center;
+                     padding: 5px 0; border-bottom: 1px solid #eee; }
+        .list-item form { margin: 0; }
+        form.inline { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+        label { display: block; margin: 12px 0 4px; font-weight: 600; }
+        .hint { color: #666; font-size: .85rem; margin: 2px 0 0; font-weight: normal; }
+        input[type=text], input[type=password], input[type=number] { padding: 6px; width: 100%;
+                 max-width: 420px; box-sizing: border-box; }
+        form.inline input[type=text] { width: auto; flex: 1; min-width: 160px; }
+        button, .button { padding: 6px 14px; background: var(--accent); color: white; border: none;
+                 border-radius: 3px; cursor: pointer; font: inherit; }
+        button.secondary { background: #607d8b; }
+        button.danger, button.linklike.danger { background: none; color: var(--err); padding: 0; }
+        button.linklike { background: none; color: #1565c0; padding: 0; }
+        .flash { padding: 10px 14px; border-radius: 4px; margin-bottom: 12px; }
+        .flash.ok { background: #e8f5e9; border: 1px solid #a5d6a7; }
+        .flash.error { background: #ffebee; border: 1px solid #ef9a9a; }
+        .muted { color: #666; }
+        .channels { columns: 3 200px; max-height: 320px; overflow-y: auto; border: 1px solid #ddd;
+                    padding: 8px 12px; }
+        .channels label { display: flex; align-items: flex-start; gap: 6px; font-weight: normal;
+                          margin: 2px 0; break-inside: avoid; }
+        .channels label input { flex: none; margin-top: 3px; }
+        nav.months { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+                     margin-bottom: 10px; flex-wrap: wrap; }
+        nav.months form { margin: 0; }
+        nav.months select { padding: 5px; }
+        .grid-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1.2fr .6fr 2fr; gap: 8px;
+                    padding: 8px; border-bottom: 1px solid #ddd; }
+        .grid-header { font-weight: bold; background: #f5f5f5; }
+        .action-links { display: flex; gap: 12px; flex-wrap: wrap; }
+        .action-links form { margin: 0; }
+        .narrow { max-width: 420px; margin: 60px auto; }
+        @media (max-width: 768px) {
+            .grid-row { grid-template-columns: 1fr; gap: 4px; padding: 12px; }
+            .grid-header { display: none; }
+            .grid-cell { display: grid; grid-template-columns: minmax(110px, 30%) 1fr; }
+            .grid-cell::before { content: attr(data-label); font-weight: bold; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tvheadend Movie Recorder</h1>
+        {% if g.user %}
+        <a href="{{ url_for('index') }}">Dashboard</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+        <form method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="link" type="submit">Log out</button>
+        </form>
+        {% endif %}
+    </header>
+    <main>
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">
+            <img src="{{ url_for('static', filename='tmdb-logo.svg') }}" alt="TMDB" height="12"></a>
+        <p>This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</p>
+        <p>An independent tool for Tvheadend, not affiliated with or endorsed by the Tvheadend developers.</p>
+        <p>Free software under the GPL-3.0-or-later.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,44 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: tvh
+    attributes:
+      label: Tvheadend version
+      placeholder: "4.3-2100"
+    validations:
+      required: true
+  - type: dropdown
+    id: run
+    attributes:
+      label: How do you run it?
+      options: [Docker Compose, Docker (other), Plain Python]
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: "`docker compose logs` (set `LOG_LEVEL=DEBUG` if needed). Remove passwords and API keys."
+      render: text
+  - type: textarea
+    id: genres
+    attributes:
+      label: Genre list (only for "movies are not found" problems)
+      description: Output of `/api/epg/content_type/list?full=1` on your Tvheadend, or a screenshot of Settings > Recording.
+      render: json
+  - type: textarea
+    id: traffic
+    attributes:
+      label: Recorded Tvheadend communication (optional)
+      description: >
+        For problems with the programme guide or recordings: enable "Record the communication with
+        Tvheadend" in Settings, press "Run now", then attach the downloaded file. It contains the
+        programme guide titles and descriptions, so look through it first. Passwords and user names are not recorded.

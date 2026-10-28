@@ -1,0 +1,29 @@
+.aider*
+.env
+
+# Python
+__pycache__/
+*.pyc
+ve/
+venv/
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Local runtime data and personal configuration: the app writes everything into its data directory
+/data/
+/config.yaml
+/watchlist.yaml
+/recorded_movies.yaml
+/auth.json
+/secret.key
+/last_run.json
+/run.lock
+/cache/
+/debug/
+
+# Local deployment helpers
+/service/
+/run.sh
+/run_webserver.sh

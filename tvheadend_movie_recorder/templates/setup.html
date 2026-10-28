@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Setup - Tvheadend Movie Recorder{% endblock %}
+{% block content %}
+<div class="section narrow">
+    <h2>Welcome</h2>
+    <p>Create the administrator account for this web interface.</p>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus autocomplete="username">
+        <label for="password">Password <span class="hint">(at least 8 characters)</span></label>
+        <input type="password" id="password" name="password" required autocomplete="new-password">
+        <label for="password2">Repeat password</label>
+        <input type="password" id="password2" name="password2" required autocomplete="new-password">
+        <p><button type="submit">Create account</button></p>
+    </form>
+</div>
+{% endblock %}
